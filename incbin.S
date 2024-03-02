@@ -1,4 +1,4 @@
-.section .time_critical.firmware
+.section .rodata.firmware
 .global firmware
 .type firmware, %object
 .balign 4
