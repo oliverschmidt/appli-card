@@ -1,6 +1,6 @@
 set(PROJECT_NAME Appli-Card)
 
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.13...3.27)
 include(pico_sdk_import.cmake)
 project(${PROJECT_NAME} C CXX ASM)
 pico_sdk_init()
@@ -20,14 +20,14 @@ FetchContent_Declare(a2pico
 FetchContent_MakeAvailable(a2pico)
 
 target_sources(${PROJECT_NAME} PRIVATE
-        main.c
         board.c
-        z80.c
         incbin.S
+        main.c
+        z80.c
         )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-        pico_stdlib
-        pico_multicore
         a2pico
+        pico_multicore
+        pico_stdlib
         )
