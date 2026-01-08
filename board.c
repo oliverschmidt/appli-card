@@ -36,6 +36,60 @@ static void __time_critical_func(reset)(bool asserted) {
     }
 }
 
+static void __time_critical_func(nop_get)(void) {
+}
+
+static void __time_critical_func(input_get)(void) {
+    a2pico_putdata(pio0, z80_wr_value);
+    z80_wr_state = false;
+}
+
+static void __time_critical_func(rd_state_get)(void) {
+    a2pico_putdata(pio0, z80_rd_state ? 0x80 : 0x00);
+}
+
+static void __time_critical_func(wr_state_get)(void) {
+    a2pico_putdata(pio0, z80_wr_state ? 0x80 : 0x00);
+}
+
+static void __time_critical_func(reset_get)(void) {
+    z80_reset();
+}
+
+static void __time_critical_func(nmi_get)(void) {
+    z80_nmi();
+}
+
+static const void __not_in_flash("devsel_get")(*devsel_get[])(void) = {
+    input_get, nop_get,   rd_state_get, wr_state_get,
+    nop_get,   reset_get, nop_get,      nmi_get,
+    nop_get,   nop_get,   nop_get,      nop_get,
+    nop_get,   nop_get,   nop_get,      nop_get
+};
+
+static void __time_critical_func(nop_put)(uint32_t data) {
+}
+
+static void __time_critical_func(output_put)(uint32_t data) {
+    z80_rd_value = data;
+    z80_rd_state = true;
+}
+
+static void __time_critical_func(reset_put)(uint32_t data) {
+    z80_reset();
+}
+
+static void __time_critical_func(nmi_put)(uint32_t data) {
+    z80_nmi();
+}
+
+static const void __not_in_flash("devsel_put")(*devsel_put[])(uint32_t) = {
+    nop_put, output_put, nop_put, nop_put,
+    nop_put, reset_put,  nop_put, nmi_put,
+    nop_put, nop_put,    nop_put, nop_put,
+    nop_put, nop_put,    nop_put, nop_put
+};
+
 void __time_critical_func(board)(void) {
 
     a2pico_init(pio0);
@@ -51,34 +105,12 @@ void __time_critical_func(board)(void) {
 
         if (read) {
             if (!io) {  // DEVSEL
-                switch (addr & 0xF) {
-                    case 0x0:
-                        a2pico_putdata(pio0, z80_wr_value);
-                        z80_wr_state = false;
-                        break;
-                    case 0x2:
-                        a2pico_putdata(pio0, z80_rd_state ? 0x80 : 0x00);
-                        break;
-                    case 0x3:
-                        a2pico_putdata(pio0, z80_wr_state ? 0x80 : 0x00);
-                        break;
-                    case 0x5:
-                        z80_reset();
-                        break;
-                }
+                devsel_get[addr & 0xF]();
             }
         } else {
             uint32_t data = a2pico_getdata(pio0);
             if (!io) {  // DEVSEL
-                switch (addr & 0xF) {
-                    case 0x1:
-                        z80_rd_value = data;
-                        z80_rd_state = true;
-                        break;
-                    case 0x5:
-                        z80_reset();
-                        break;
-                }
+                devsel_put[addr & 0xF](data);
             }
         }
     }

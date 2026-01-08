@@ -37,6 +37,11 @@ static __always_inline void z80_reset(void) {
     Status = 1;
 }
 
+extern volatile int32_t NMI;
+static __always_inline void z80_nmi(void) {
+    NMI = 1;
+}
+
 void z80_run(void);
 
 #endif
