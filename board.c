@@ -60,7 +60,7 @@ static void __time_critical_func(nmi_get)(void) {
     z80_nmi();
 }
 
-static const void __not_in_flash("devsel_get")(*devsel_get[])(void) = {
+static const void __not_in_flash("devsel_get") (*devsel_get[])(void) = {
     input_get, nop_get,   rd_state_get, wr_state_get,
     nop_get,   reset_get, nop_get,      nmi_get,
     nop_get,   nop_get,   nop_get,      nop_get,
@@ -83,7 +83,7 @@ static void __time_critical_func(nmi_put)(uint32_t data) {
     z80_nmi();
 }
 
-static const void __not_in_flash("devsel_put")(*devsel_put[])(uint32_t) = {
+static const void __not_in_flash("devsel_put") (*devsel_put[])(uint32_t) = {
     nop_put, output_put, nop_put, nop_put,
     nop_put, reset_put,  nop_put, nmi_put,
     nop_put, nop_put,    nop_put, nop_put,
