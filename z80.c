@@ -27,6 +27,8 @@ SOFTWARE.
 #include <stdio.h>
 #include <pico/stdlib.h>
 
+static uint16_t dmaAddr;
+
 static uint8_t _RamRead(uint32_t addr);
 static void _RamWrite(uint32_t addr, uint32_t value);
 
@@ -43,6 +45,9 @@ typedef  uint8_t  uint8;
 typedef uint16_t uint16;
 typedef uint32_t uint32;
 
+#define TRUE  true
+#define FALSE false
+
 #define LOW_DIGIT(x)     ((x) & 0xf)
 #define HIGH_DIGIT(x)    (((x) >> 4) & 0xf)
 #define LOW_REGISTER(x)  ((x) & 0xff)
@@ -50,6 +55,14 @@ typedef uint32_t uint32;
 
 #define SET_LOW_REGISTER(x, v)  x = (((x) & 0xff00) | ((v) & 0xff))
 #define SET_HIGH_REGISTER(x, v) x = (((x) & 0xff) | (((v) & 0xff) << 8))
+
+#define _kbhit()       (getchar_timeout_us(0) != PICO_ERROR_TIMEOUT)
+#define _getch         getchar
+#define _putcon        putchar
+#define _putch         putchar
+#define _puts          printf
+#define _puthex8(arg)  printf("%02x", (arg))
+#define _puthex16(arg) printf("%04x", (arg))
 
 #include "cpu.h"
 

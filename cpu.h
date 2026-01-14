@@ -1503,6 +1503,9 @@ static inline void Z80run(void) {
 	while (!Status) {	/* loop until Status != 0 */
 
 #ifdef DEBUG
+		if (_kbhit()) {
+			Debug = 1;
+		}
 		if (PC == Break) {
 			_puts(":BREAK at ");
 			_puthex16(Break);
