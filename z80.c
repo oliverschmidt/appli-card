@@ -62,7 +62,7 @@ typedef uint32_t uint32;
 #define _putch         putchar
 #define _puts          printf
 #define _puthex8(arg)  printf("%02x", (arg))
-#define _puthex16(arg) printf("%04x", (arg))
+#define _puthex16(arg) printf("%04hx", (arg))
 
 #include "cpu.h"
 
