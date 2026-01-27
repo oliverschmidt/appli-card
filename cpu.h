@@ -27,6 +27,10 @@ SOFTWARE.
 #ifndef CPU_H
 #define CPU_H
 
+#ifdef DEBUG
+#include <ctype.h>
+#endif
+
 /* see main.c for definition */
 
 int32 PCX; /* external view of PC                          */
@@ -1263,6 +1267,71 @@ void memdump(uint16 pos) {
 	}
 }
 
+void memoryset(uint16 pos) {
+	uint16 addr = pos;
+	uint8 loop = TRUE;
+	uint8 hexch, val, i, j;
+
+	do {
+		_puthex16(addr);
+		_puts(" : ");
+		_puthex8(_RamRead(addr));
+		_putcon(' ');
+
+		val = 0;
+		for (i = 0; i < 2; ++i) {
+			hexch = _getch();
+			if ( ! isxdigit(hexch) ) {
+				loop = FALSE;
+				break;
+			}
+
+			_putch(hexch);
+
+			j = hexch - 48;
+			if ( j > 9 )
+				j -= 7;
+			j &= 0x0f;
+			val = (val <<4) | j;
+		}
+
+		if (loop) {
+
+			_RamWrite(addr, val);
+
+			/* Might be ROM, read back before display */
+			val = _RamRead(addr++);
+
+			_putcon(' ');
+			_puthex8(val);
+			_puts("\r\n");
+		}
+	} while (loop);
+}
+
+uint8 getaddress (unsigned int* addr) {
+	uint8 valid = TRUE;
+	uint8 hexch, i, j;
+
+	for (i = 0; i < 4; ++i) {
+		hexch = _getch();
+		if ( ! isxdigit(hexch) ) {
+			valid = FALSE;
+			break;
+		}
+
+		_putch(hexch);
+
+		j = hexch - 48;
+		if ( j > 9 )
+			j -= 7;
+		j &= 0x0f;
+		*addr = (*addr <<4) | j;
+	}
+
+	return valid;
+}
+
 uint8 Disasm(uint16 pos) {
 	const char* txt;
 	char jr;
@@ -1413,7 +1482,8 @@ void Z80debug(void) {
 			break;
 		case 'B':
 			_puts(" Addr: ");
-			res=scanf("%04x", &bpoint);
+			res=getaddress(&bpoint);
+			_puts("\r\n");
 			if (res) {
 				Break = bpoint;
 				_puts("Breakpoint set to ");
@@ -1427,13 +1497,28 @@ void Z80debug(void) {
 			break;
 		case 'D':
 			_puts(" Addr: ");
-			res=scanf("%04x", &bpoint);
+			res=getaddress(&bpoint);
+			_puts("\r\n");
 			if(res)
 				memdump(bpoint);
 			break;
+		case 'G':
+			_puts(" Addr: ");
+			res=getaddress(&bpoint);
+			_puts("\r\n");
+			if(res) {
+				PC = bpoint;
+				loop = FALSE;
+				Debug = 0;
+				_puts("Continuing execution at address ");
+				_puthex16(bpoint);
+				_puts("\r\n");
+			}
+			break;
 		case 'L':
 			_puts(" Addr: ");
-			res=scanf("%04x", &bpoint);
+			res=getaddress(&bpoint);
+			_puts("\r\n");
 			if (res) {
 				I = 16;
 				l = bpoint;
@@ -1446,15 +1531,23 @@ void Z80debug(void) {
 				}
 			}
 			break;
+		case 'S':
+			_puts(" Addr: ");
+			res=getaddress(&bpoint);
+			_puts("\r\n");
+			if(res)
+				memoryset(bpoint);
+			break;
 		case 'T':
 			loop = FALSE;
 			Step = pos + 3; // This only works correctly with CALL
-							// If the called function messes with the stack, this will fail as well.
+					// If the called function messes with the stack, this will fail as well.
 			Debug = 0;
 			break;
 		case 'W':
 			_puts(" Addr: ");
-			res=scanf("%04x", &bpoint);
+			res=getaddress(&bpoint);
+			_puts("\r\n");
 			if (res) {
 				Watch = bpoint;
 				_puts("Watch set to ");
@@ -1480,7 +1573,9 @@ void Z80debug(void) {
 			_puts("  B - Sets breakpoint at address\r\n");
 			_puts("  C - Clears breakpoint\r\n");
 			_puts("  D - Dumps memory at address\r\n");
+			_puts("  G - Continue execution at address\r\n");
 			_puts("  L - Disassembles at address\r\n");
+			_puts("  S - Set memory at address\r\n");
 			_puts("  T - Steps over a call\r\n");
 			_puts("  W - Sets a byte/word watch\r\n");
 			break;
