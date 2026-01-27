@@ -26,6 +26,7 @@ SOFTWARE.
 
 #include <stdio.h>
 #include <pico/stdlib.h>
+#include <ctype.h>
 
 static uint16_t dmaAddr;
 
