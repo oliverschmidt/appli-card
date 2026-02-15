@@ -40,16 +40,16 @@ static void __time_critical_func(nop_get)(void) {
 }
 
 static void __time_critical_func(input_get)(void) {
-    a2pico_putdata(pio0, z80_wr_value);
+    a2pico_putdata(z80_wr_value);
     z80_wr_state = false;
 }
 
 static void __time_critical_func(rd_state_get)(void) {
-    a2pico_putdata(pio0, z80_rd_state ? 0x80 : 0x00);
+    a2pico_putdata(z80_rd_state ? 0x80 : 0x00);
 }
 
 static void __time_critical_func(wr_state_get)(void) {
-    a2pico_putdata(pio0, z80_wr_state ? 0x80 : 0x00);
+    a2pico_putdata(z80_wr_state ? 0x80 : 0x00);
 }
 
 static void __time_critical_func(reset_get)(void) {
@@ -92,23 +92,23 @@ static const void __not_in_flash("devsel_put") (*devsel_put[])(uint32_t) = {
 
 void __time_critical_func(board)(void) {
 
-    a2pico_init(pio0);
+    a2pico_init();
 
     a2pico_resethandler(&reset);
 
     while (true) {
-        uint32_t pico = a2pico_getaddr(pio0);
+        uint32_t pico = a2pico_getaddr();
         uint32_t addr = pico & 0x0FFF;
         uint32_t io   = pico & 0x0F00;  // IOSTRB or IOSEL
         uint32_t strb = pico & 0x0800;  // IOSTRB
-        uint32_t read = pico & 0x1000;  // R/W
+        uint32_t read = pico & RW_BIT;  // R/W
 
         if (read) {
             if (!io) {  // DEVSEL
                 devsel_get[addr & 0xF]();
             }
         } else {
-            uint32_t data = a2pico_getdata(pio0);
+            uint32_t data = a2pico_getdata();
             if (!io) {  // DEVSEL
                 devsel_put[addr & 0xF](data);
             }

@@ -100,9 +100,7 @@ static uint32_t _HardwareIn(uint32_t port) {
         case 0x20:
             value = z80_rd_value;
             z80_rd_state = false;
-#ifdef PICO_DEFAULT_LED_PIN
             gpio_put(PICO_DEFAULT_LED_PIN, true);
-#endif
             break;
         case 0x040:
             value = z80_rd_state ? 0x80 : 0x00 |
@@ -116,9 +114,7 @@ static void _HardwareOut(uint32_t port, uint32_t value) {
         case 0x00:
             z80_wr_value = value;
             z80_wr_state = true;
-#ifdef PICO_DEFAULT_LED_PIN
             gpio_put(PICO_DEFAULT_LED_PIN, false);
-#endif
             break;
         case 0x60:
             shadow = !!(value & 0x01);
@@ -135,10 +131,8 @@ static void _Bdos(void) {
 }
 
 void z80_run(void) {
-#ifdef PICO_DEFAULT_LED_PIN
     gpio_init(PICO_DEFAULT_LED_PIN);
     gpio_set_dir(PICO_DEFAULT_LED_PIN, GPIO_OUT);
-#endif    
 
     while (true) {
         Z80reset();
@@ -146,9 +140,7 @@ void z80_run(void) {
         z80_wr_state = false;
         shadow = true;
         puts("Reset");
-#ifdef PICO_DEFAULT_LED_PIN
         gpio_put(PICO_DEFAULT_LED_PIN, false);
-#endif
         Z80run();
     }
 }
