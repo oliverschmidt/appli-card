@@ -1410,6 +1410,16 @@ void Z80debug(void) {
 
 		Disasm(pos);
 
+		_puts("\r\n");
+		_puts("BC'");  _puthex16(BC1);
+		_puts(" DE'"); _puthex16(DE1);
+		_puts(" HL'"); _puthex16(HL1);
+		_puts(" AF'"); _puthex16(AF1);
+		_puts("\r\n");
+		_puts("IF:");  _puthex16(IFF);
+		_puts(" IR:"); _puthex16(IR);
+		_puts("\r\n");
+
 		if (PC == 0x0005) {
 			if (LOW_REGISTER(BC) > 40) {
 				_puts(" (Unknown)");
