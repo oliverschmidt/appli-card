@@ -11,6 +11,9 @@ pico_add_extra_outputs(${PROJECT_NAME})
 option(DEBUG "Debug output via USB CDC-ACM")
 message("DEBUG is ${DEBUG}")
 
+option(INCIR "Increment IR register in Z80 emulation")
+message("INCIR is ${INCIR}")
+
 pico_enable_stdio_uart(${PROJECT_NAME} 0)
 if (DEBUG)
         pico_enable_stdio_usb(${PROJECT_NAME} 1)
@@ -29,6 +32,10 @@ FetchContent_MakeAvailable(a2pico)
 
 if (DEBUG)
         target_compile_definitions(${PROJECT_NAME} PRIVATE DEBUG)
+endif ()
+
+if (INCIR)
+	target_compile_definitions(${PROJECT_NAME} PRIVATE DO_INCR)
 endif ()
 
 target_sources(${PROJECT_NAME} PRIVATE
