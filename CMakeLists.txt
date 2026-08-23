@@ -11,7 +11,7 @@ pico_add_extra_outputs(${PROJECT_NAME})
 option(DEBUG "Debug output via USB CDC-ACM")
 message("DEBUG is ${DEBUG}")
 
-option(DO_INCR "Increment IR register in Z80 emulation")
+option(DO_INCR "Increment IR register in Z80 emulation" ON)
 message("DO_INCR is ${DO_INCR}")
 
 pico_enable_stdio_uart(${PROJECT_NAME} 0)
