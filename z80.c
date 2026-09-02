@@ -28,6 +28,8 @@ SOFTWARE.
 #include <pico/stdlib.h>
 #include <ctype.h>
 
+#include <a2pico.h>
+
 static uint16_t dmaAddr;
 
 static uint8_t _RamRead(uint32_t addr);
@@ -100,7 +102,9 @@ static uint32_t _HardwareIn(uint32_t port) {
         case 0x20:
             value = z80_rd_value;
             z80_rd_state = false;
-            gpio_put(PICO_DEFAULT_LED_PIN, true);
+            if (a2pico_led() >= 0) {
+                gpio_put(a2pico_led(), true);
+            }
             break;
         case 0x040:
             value = z80_rd_state ? 0x80 : 0x00 |
@@ -114,7 +118,9 @@ static void _HardwareOut(uint32_t port, uint32_t value) {
         case 0x00:
             z80_wr_value = value;
             z80_wr_state = true;
-            gpio_put(PICO_DEFAULT_LED_PIN, false);
+            if (a2pico_led() >= 0) {
+                gpio_put(a2pico_led(), false);
+            }
             break;
         case 0x60:
             shadow = !!(value & 0x01);
@@ -131,8 +137,10 @@ static void _Bdos(void) {
 }
 
 void z80_run(void) {
-    gpio_init(PICO_DEFAULT_LED_PIN);
-    gpio_set_dir(PICO_DEFAULT_LED_PIN, GPIO_OUT);
+    if (a2pico_led() >= 0) {
+        gpio_init(a2pico_led());
+        gpio_set_dir(a2pico_led(), GPIO_OUT);
+    }
 
     while (true) {
         Z80reset();
@@ -140,7 +148,9 @@ void z80_run(void) {
         z80_wr_state = false;
         shadow = true;
         puts("Reset");
-        gpio_put(PICO_DEFAULT_LED_PIN, false);
+        if (a2pico_led() >= 0) {
+            gpio_put(a2pico_led(), false);
+        }
         Z80run();
     }
 }
