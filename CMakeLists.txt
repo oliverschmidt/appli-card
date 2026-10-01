@@ -1,6 +1,13 @@
 set(PROJECT_NAME Appli-Card)
-
 cmake_minimum_required(VERSION 3.13...3.27)
+
+include(FetchContent)
+FetchContent_Declare(a2pico
+        GIT_REPOSITORY https://github.com/oliverschmidt/a2pico.git
+        GIT_TAG main
+        )
+FetchContent_MakeAvailable(a2pico)
+
 include(pico_sdk_import.cmake)
 project(${PROJECT_NAME} C CXX ASM)
 pico_sdk_init()
@@ -22,13 +29,6 @@ endif ()
 set_source_files_properties(incbin.S
         OBJECT_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/applicard-v9.bin
         )
-
-include(FetchContent)
-FetchContent_Declare(a2pico
-        GIT_REPOSITORY https://github.com/oliverschmidt/a2pico.git
-        GIT_TAG main
-        )
-FetchContent_MakeAvailable(a2pico)
 
 if (DEBUG)
         target_compile_definitions(${PROJECT_NAME} PRIVATE DEBUG)
